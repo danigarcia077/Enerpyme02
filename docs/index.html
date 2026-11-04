@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EnerPyme Analytics</title>
+<style>:root{--cds-radius:10px;--font-anthropic-sans:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+html{scroll-behavior:smooth}body{margin:0;background:#070E1A;padding:16px}
+.wrapper{max-width:1100px;margin:0 auto}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head><body><div class="wrapper">
+<script>
+(function(){
+  var data={}, draws=[], calcs=[];
+  function get(id){return data[id]?{status:'ok',data:data[id],message:'',refreshing:false,meta:[]}:{status:'missing',data:[]}}
+  window.dash={
+    data:get, colors:['#F5B83D','#5AA9F0','#3CCFBE','#A89BFF'],
+    calc:function(id,o){calcs.push([id,o])},
+    draw:function(name,fn){if(fn)draws.push([name,fn])},
+    setLink:function(){}, params:function(){return {}}, setParams:function(){}, resetParams:function(){}, onData:function(){}, refresh:function(){}
+  };
+  window.__setData=function(j){Object.keys(j).forEach(function(k){data[k]=j[k]})};
+  window.__runDash=function(){
+    calcs.forEach(function(c){data[c[0]]=c[1].fn.apply(null,c[1].inputs.map(function(i){return data[i]}))});
+    draws.forEach(function(d){document.querySelectorAll('[data-draw="'+d[0]+'"]').forEach(function(el){d[1](el)})});
+  };
+  var tm;window.addEventListener('resize',function(){clearTimeout(tm);tm=setTimeout(window.__runDash,150)});
+})();
+</script>
+<style>
+.epbox{container:ep/inline-size}
+.ep{--bg:#0D1829;--panel:#13243B;--panel2:#182C47;--line:#26395A;--fg:#E8EEF7;--muted:#92A6C2;--amber:#F5B83D;--blue:#5AA9F0;--teal:#3CCFBE;--violet:#A89BFF;--bad:#FF8A75;
+  background:var(--bg);color:var(--fg);border-radius:var(--cds-radius);font-family:var(--font-anthropic-sans);display:flex;flex-direction:column;overflow:hidden}
+.ep *{box-sizing:border-box}
+.ep p{margin:0}
+.ep h1,.ep h2,.ep h3{margin:0;font-weight:700;letter-spacing:-.01em}
+.ep .ic{width:1.15rem;height:1.15rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ep .nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:1rem;padding:.75rem 1.25rem}
+.ep .logo{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.1rem;white-space:nowrap}
+.ep .logo .ic{color:var(--amber);width:1.5rem;height:1.5rem}
+.ep .links{display:flex;gap:.25rem;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.ep .links::-webkit-scrollbar{display:none}
+.ep .links button{all:unset;cursor:pointer;display:flex;align-items:center;gap:.4rem;padding:.45rem .7rem;border-radius:999px;color:var(--muted);font-size:.9rem;white-space:nowrap;border:1px solid transparent}
+.ep .links button:hover{color:var(--fg);background:var(--panel)}
+.ep .links button:focus-visible{outline:2px solid var(--amber)}
+.ep .links button.on{color:var(--amber);border-color:var(--line);background:var(--panel)}
+.ep .who{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--muted);white-space:nowrap}
+.ep .live{display:inline-flex;align-items:center;gap:.4rem;background:var(--panel);border:1px solid var(--line);padding:.25rem .6rem;border-radius:999px}
+.ep .live i{width:.5rem;height:.5rem;border-radius:50%;background:var(--teal)}
+.ep .body{display:flex;flex-direction:column;gap:2rem;padding:1.75rem 1.25rem 2rem}
+.ep .hero{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:flex-end;scroll-margin-top:5rem}
+.ep .hero h1{font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.05}
+.ep .hero p{color:var(--muted);max-width:60ch;margin-top:.5rem}
+.ep .btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--line);border-radius:var(--cds-radius);padding:.6rem 1rem;font-weight:600;background:var(--panel)}
+.ep .btn:hover{border-color:var(--amber);color:var(--amber)}
+.ep .btn:focus-visible{outline:2px solid var(--amber)}
+.ep .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,10.5rem),1fr));gap:.75rem}
+.ep .tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--cds-radius);padding:1rem;display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.ep .tile .top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:.78rem}
+.ep .tile .top .ic{color:var(--amber)}
+.ep .tile .big{font-size:1.8rem;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.ep .tile .sub{font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.ep .sec{display:flex;flex-direction:column;gap:1rem;scroll-margin-top:5rem}
+.ep .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:1rem}
+.ep .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--cds-radius);padding:1.25rem;display:flex;flex-direction:column;gap:.85rem;min-width:0;scroll-margin-top:5rem}
+.ep .qh{display:flex;gap:.85rem;align-items:flex-start}
+.ep .badge{flex:none;width:2.4rem;height:2.4rem;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--amber)}
+.ep .qh .k{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.ep .qh h2{font-size:1.2rem;line-height:1.25}
+.ep .qh .st{color:var(--muted);font-size:.85rem;margin-top:.2rem}
+.ep .chip{border-radius:999px;padding:.1rem .55rem;font-size:.7rem;letter-spacing:.05em}
+.ep .chip.real{background:#12363A;color:var(--teal);border:1px solid #1D5A5A}
+.ep .chip.sim{border:1px dashed var(--amber);color:var(--amber)}
+.ep .ans{color:#CBD7E8;line-height:1.6;max-width:68ch}
+.ep .ans b{color:var(--fg);font-variant-numeric:tabular-nums}
+.ep .muted{color:var(--muted);font-size:.8rem}
+.ep .chart{position:relative;min-height:260px;width:100%}
+.ep .chart svg{display:block}
+.ep .chart text{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.ep .chart text.lb{fill:var(--fg)}
+.ep .tip{position:absolute;pointer-events:none;background:#0A1322;border:1px solid var(--line);border-radius:var(--cds-radius);box-shadow:0 6px 18px rgba(0,0,0,.45);padding:.3rem .6rem;font-size:.75rem;white-space:nowrap;z-index:3;color:var(--fg)}
+.ep .tip div:first-child{color:var(--muted)}
+.ep .sw{display:inline-block;width:.6rem;height:.6rem;border-radius:2px;margin-right:.35rem}
+.ep .legend{display:flex;flex-wrap:wrap;gap:.25rem 1rem;font-size:.78rem;color:var(--muted)}
+.ep .tbl{overflow-x:auto}
+.ep table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+.ep th,.ep td{text-align:right;padding:.55rem .7rem;border-bottom:1px solid var(--line);white-space:nowrap}
+.ep th:first-child,.ep td:first-child{text-align:left}
+.ep th{color:var(--muted);font-weight:600;font-size:.74rem}
+.ep .sim-box{border:1px dashed var(--amber);border-radius:var(--cds-radius);padding:1rem;display:flex;flex-direction:column;gap:1rem}
+.ep .note{display:flex;gap:.75rem;align-items:flex-start;color:var(--muted);font-size:.85rem}
+.ep .note .ic{color:var(--amber);margin-top:.15rem}
+.ep .pages{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr));gap:.75rem}
+.ep .pages button{all:unset;cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-radius:var(--cds-radius);padding:.85rem;display:flex;flex-direction:column;gap:.35rem}
+.ep .pages button:hover{border-color:var(--amber)}
+.ep .pages button:focus-visible{outline:2px solid var(--amber)}
+.ep .pages b{display:flex;align-items:center;gap:.5rem;font-size:.95rem}
+.ep .pages b .ic{color:var(--amber)}
+.ep .pages span{font-size:.8rem;color:var(--muted)}
+.ep .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,11rem),1fr));gap:.75rem;margin:0;padding:0;list-style:none}
+.ep .steps li{background:var(--panel2);border:1px solid var(--line);border-radius:var(--cds-radius);padding:.75rem;display:flex;flex-direction:column;gap:.3rem;font-size:.82rem;color:var(--muted)}
+.ep .steps li b{display:flex;gap:.4rem;align-items:center;color:var(--fg);font-size:.9rem}
+.ep .steps .ic{color:var(--teal)}
+.ep .foot{border-top:1px solid var(--line);padding-top:1rem;display:flex;flex-direction:column;gap:.5rem}
+.ep .nav{flex-wrap:wrap;row-gap:.5rem}.ep .links{order:3;flex:1 0 100%;flex-wrap:wrap;overflow:visible}.ep .who{margin-left:auto}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v11h14V10M10 21v-6h4v6"/></symbol>
+<symbol id="i-line" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></symbol>
+<symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 21V10M12 21V4M19 21v-7"/></symbol>
+<symbol id="i-build" viewBox="0 0 24 24"><path d="M4 21V5l8-3 8 3v16M9 21v-4h6v4M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><path d="M4 5h16v16H4zM4 10h16M8 3v4M16 3v4"/></symbol>
+<symbol id="i-dollar" viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+<symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/></symbol>
+<symbol id="i-fact" viewBox="0 0 24 24"><path d="M3 21V9l6 4V9l6 4V4h6v17z"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+<symbol id="i-db" viewBox="0 0 24 24"><path d="M4 6c0 1.7 3.6 3 8 3s8-1.3 8-3-3.6-3-8-3-8 1.3-8 3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12zM12 12h.01"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</defs></svg>
+
+<div class="epbox"><div class="ep" id="ep">
+  <nav class="nav" aria-label="Secciones">
+    <div class="logo"><svg class="ic"><use href="#i-bolt"/></svg>EnerPyme</div>
+    <div class="links">
+      <button data-go="resumen"><svg class="ic"><use href="#i-home"/></svg>Resumen</button>
+      <button data-go="q1"><svg class="ic"><use href="#i-line"/></svg>Precio de bolsa</button>
+      <button data-go="q2"><svg class="ic"><use href="#i-bars"/></svg>Demanda</button>
+      <button data-go="q3"><svg class="ic"><use href="#i-cal"/></svg>Mi consumo</button>
+      <button data-go="q4"><svg class="ic"><use href="#i-dollar"/></svg>Mi factura</button>
+      <button data-go="q5"><svg class="ic"><use href="#i-build"/></svg>Mis sedes</button>
+      <button data-go="powerbi"><svg class="ic"><use href="#i-grid"/></svg>Power BI</button>
+      <button data-go="datos"><svg class="ic"><use href="#i-db"/></svg>Datos</button>
+    </div>
+    <div class="who"><span class="live"><i></i><span data-draw="fecha" data-source="estado" data-field="xm_hasta" data-pre="Datos XM al ">—</span></span><svg class="ic" role="img" aria-label="Cuenta"><use href="#i-user"/></svg></div>
+  </nav>
+
+  <div class="body">
+    <header class="hero" id="resumen">
+      <div>
+        <h1>Tablero de negocio</h1>
+        <p>El tablero de EnerPyme Analytics. Sus cifras salen de XM y datos.gov.co; las facturas de las tres sedes son simuladas.</p>
+      </div>
+      <button class="btn" data-go="powerbi"><svg class="ic"><use href="#i-grid"/></svg>Ver páginas del dashboard</button>
+    </header>
+
+    <div class="tiles">
+      <div class="tile"><div class="top"><span>Precio de bolsa · ago</span><svg class="ic"><use href="#i-line"/></svg></div><span class="big" data-draw="num" data-source="mercado" data-field="precio_bolsa" data-where="mes=2026-08" data-fmt="n0">—</span><span class="sub">COP/kWh · <span data-draw="num" data-source="mercado" data-field="var_bolsa_pct" data-where="mes=2026-08" data-fmt="pct">—</span> vs julio</span></div>
+      <div class="tile"><div class="top"><span>Costo unitario CHEC · sep</span><svg class="ic"><use href="#i-dollar"/></svg></div><span class="big" data-draw="num" data-source="mercado" data-field="cu_chec" data-where="mes=2026-09" data-fmt="n1">—</span><span class="sub">$/kWh · <span data-draw="num" data-source="mercado" data-field="var_cu_pct" data-where="mes=2026-09" data-fmt="pct">—</span> vs agosto</span></div>
+      <div class="tile"><div class="top"><span>Demanda del país · sep</span><svg class="ic"><use href="#i-bars"/></svg></div><span class="big" data-draw="num" data-source="mercado" data-field="demanda_gwh" data-where="mes=2026-09" data-fmt="n0">—</span><span class="sub">GWh en el mes</span></div>
+      <div class="tile"><div class="top"><span>Mi consumo · sep</span><svg class="ic"><use href="#i-bolt"/></svg></div><span class="big" data-draw="num" data-source="empresa_mes" data-field="total_kwh" data-where="mes=2026-09" data-fmt="n0">—</span><span class="sub">kWh, 3 sedes (simulado)</span></div>
+      <div class="tile"><div class="top"><span>Bodega: factura jul vs jun</span><svg class="ic"><use href="#i-swap"/></svg></div><span class="big"><span data-draw="num" data-source="efecto" data-field="cambio_factura" data-where="sede=Bodega%20frigor%C3%ADfica" data-fmt="mm">—</span></span><span class="sub">millones de pesos (simulado)</span></div>
+    </div>
+
+    <section class="sec" id="mercado">
+      <div class="grid">
+        <article class="card" id="q1">
+          <div class="qh"><span class="badge"><svg class="ic"><use href="#i-line"/></svg></span><div><div class="k"><span class="chip real">Datos reales · XM</span></div><h2>¿Cuánto cambió el precio de la energía?</h2><p class="st">Precio de bolsa frente al costo unitario</p></div></div>
+          <p class="ans">Pasó de <b data-draw="num" data-source="mercado" data-field="precio_bolsa" data-where="mes=2026-01" data-fmt="n0">—</b> COP/kWh en enero a <b data-draw="num" data-source="mercado" data-field="precio_bolsa" data-where="mes=2026-08" data-fmt="n0">—</b> en agosto y cerró septiembre en <b data-draw="num" data-source="mercado" data-field="precio_bolsa" data-where="mes=2026-09" data-fmt="n0">—</b>. La tarifa regulada lo amortigua: el costo unitario de CHEC solo subió <b data-draw="num" data-source="resumen" data-field="alza_cu" data-fmt="n1">—</b> $/kWh en el mismo periodo. El precio de bolsa no equivale a lo que se factura.</p>
+          <div class="chart" data-draw="c-mercado" data-source="mercado"></div>
+          <div class="legend"><span><i class="sw" style="background:#F5B83D"></i>Bolsa</span><span><i class="sw" style="background:#5AA9F0"></i>CU = costo unitario CHEC</span></div>
+        </article>
+        <article class="card" id="q2">
+          <div class="qh"><span class="badge"><svg class="ic"><use href="#i-bars"/></svg></span><div><div class="k"><span class="chip real">Datos reales · XM</span></div><h2>¿Cuánta energía usa el país?</h2><p class="st">Demanda eléctrica por mes</p></div></div>
+          <p class="ans">Se mantiene estable de marzo a septiembre. El punto más alto fue agosto, con <b data-draw="num" data-source="mercado" data-field="demanda_gwh" data-where="mes=2026-08" data-fmt="n0">—</b> GWh. Febrero baja a <b data-draw="num" data-source="mercado" data-field="demanda_gwh" data-where="mes=2026-02" data-fmt="n0">—</b> porque tiene 28 días.</p>
+          <div class="chart" data-draw="c-dem" data-source="mercado"></div>
+          <p class="muted">GWh por mes, enero a septiembre de 2026.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="sec sim-box">
+      <div class="note"><svg class="ic"><use href="#i-info"/></svg><p>Las tres secciones siguientes usan una empresa de ejemplo con tres sedes. El consumo en kWh es simulado (semilla 42); el costo por kWh es el valor real de CHEC. La factura no incluye impuestos ni cargos fijos.</p></div>
+      <div class="grid">
+        <article class="card" id="q3">
+          <div class="qh"><span class="badge"><svg class="ic"><use href="#i-cal"/></svg></span><div><div class="k"><span class="chip sim">Datos simulados</span></div><h2>¿Cuándo consume más mi empresa?</h2><p class="st">Consumo mensual de las tres sedes</p></div></div>
+          <p class="ans">El mes de mayor consumo fue <b data-draw="num" data-source="empresa_pico" data-field="mes_nombre" data-fmt="txt">—</b>, con <b data-draw="num" data-source="empresa_pico" data-field="total_kwh" data-fmt="n0">—</b> kWh entre las tres sedes: <b data-draw="num" data-source="empresa_pico" data-field="var_pct" data-fmt="pct">—</b> frente al mes anterior.</p>
+          <div class="chart" data-draw="c-empresa" data-source="empresa_mes"></div>
+          <p class="muted">Miles de kWh por mes, suma de las tres sedes. El mes pico va en ámbar.</p>
+        </article>
+        <article class="card" id="q4">
+          <div class="qh"><span class="badge"><svg class="ic"><use href="#i-dollar"/></svg></span><div><div class="k"><span class="chip sim">Datos simulados</span></div><h2>¿Por qué subió mi factura?</h2><p class="st">Consumo frente a precio, julio vs. junio</p></div></div>
+          <p class="ans">Depende de la sede, julio frente a junio. En la bodega el consumo subió <b data-draw="num" data-source="efecto" data-field="var_consumo_pct" data-where="sede=Bodega%20frigor%C3%ADfica" data-fmt="n1">—</b> % y explica casi todo el aumento. En la planta industrial el consumo subió solo <b data-draw="num" data-source="efecto" data-field="var_consumo_pct" data-where="sede=Planta%20industrial" data-fmt="n1">—</b> % y pesó más el precio por kWh.</p>
+          <div class="chart" data-draw="c-efecto" data-source="efecto" style="min-height:220px"></div>
+          <div class="legend"><span><i class="sw" style="background:#A89BFF"></i>Efecto consumo</span><span><i class="sw" style="background:#F5B83D"></i>Efecto precio</span><span>Millones de pesos</span></div>
+        </article>
+      </div>
+      <article class="card" id="q5">
+        <div class="qh"><span class="badge"><svg class="ic"><use href="#i-build"/></svg></span><div><div class="k"><span class="chip sim">Datos simulados</span></div><h2>¿Qué sede consume más?</h2><p class="st">Consumo por sede y variaciones a revisar</p></div></div>
+        <p class="ans">La sede que más consume es la <b data-draw="num" data-source="sedes_resumen" data-field="sede" data-row="0" data-fmt="txt">—</b>, con <b data-draw="num" data-source="sedes_resumen" data-field="total_kwh" data-row="0" data-fmt="n0">—</b> kWh en nueve meses. La variación que más conviene revisar es la de la <b data-draw="num" data-source="sedes_resumen" data-field="sede" data-row="1" data-fmt="txt">—</b>, que en <b data-draw="num" data-source="sedes_resumen" data-field="salto_mes" data-row="1" data-fmt="txt">—</b> cambió <b data-draw="num" data-source="sedes_resumen" data-field="salto_pct" data-row="1" data-fmt="pct">—</b> frente al mes anterior.</p>
+        <div class="chart" data-draw="c-sedes" data-source="sedes"></div>
+        <div class="tbl"><table data-source="sedes_resumen" data-row-key="sede">
+          <thead><tr><th data-field="sede">Sede</th><th data-field="total_kwh">kWh en 9 meses</th><th data-field="promedio_kwh">Promedio mensual</th><th data-field="pico_mes">Mes pico</th><th data-field="salto_mes">Mayor salto en</th><th data-field="salto_pct">Salto</th></tr></thead>
+          <tbody data-draw="t-sedes"></tbody>
+        </table></div>
+      </article>
+    </section>
+
+    <article class="card">
+      <div class="qh"><span class="badge"><svg class="ic"><use href="#i-lock"/></svg></span><div><div class="k"><span>Requieren más datos</span></div><h2>Lo que las facturas mensuales no responden</h2></div></div>
+      <p class="ans">¿En qué horarios consumo más energía? ¿Qué proceso o equipo debería revisar primero? Para responderlas se necesitan registros por hora, por proceso o por equipo. Con facturas mensuales solo se comparan meses y costos.</p>
+    </article>
+
+    <section class="sec" id="powerbi">
+      <article class="card">
+        <div class="qh"><span class="badge"><svg class="ic"><use href="#i-grid"/></svg></span><div><div class="k"><span>Dashboard</span></div><h2>Las cuatro páginas del dashboard de Power BI</h2></div></div>
+        <p class="ans">Las gráficas de este tablero reproducen las páginas del archivo EnerPyme_Dashboard.pbix con los mismos datos. El archivo original se abre en Power BI Desktop.</p>
+        <div class="pages">
+          <button data-go="q1"><b><svg class="ic"><use href="#i-line"/></svg>Mercado</b><span>Bolsa frente a costo unitario</span></button>
+          <button data-go="q5"><b><svg class="ic"><use href="#i-build"/></svg>Consumo por sede</b><span>Qué sede consume más y cuándo</span></button>
+          <button data-go="q4"><b><svg class="ic"><use href="#i-swap"/></svg>Consumo vs. precio</b><span>Factura de julio frente a junio</span></button>
+          <button data-go="q2"><b><svg class="ic"><use href="#i-bars"/></svg>Demanda nacional</b><span>Demanda eléctrica por mes</span></button>
+        </div>
+      </article>
+    </section>
+
+    <section class="sec" id="datos">
+      <article class="card">
+        <div class="qh"><span class="badge"><svg class="ic"><use href="#i-refresh"/></svg></span><div><div class="k"><span>Datos</span></div><h2>De dónde vienen y hasta cuándo llegan</h2></div></div>
+        <p class="ans">Última carga: <b data-draw="fecha" data-source="estado" data-field="cargado">—</b>. XM llega hasta el <b data-draw="fecha" data-source="estado" data-field="xm_hasta">—</b> y CHEC hasta <b data-draw="fecha" data-source="estado" data-field="chec_hasta">—</b>. XM publica con uno o dos días de retraso y CHEC una vez al mes.</p>
+        <ol class="steps">
+          <li><b><svg class="ic"><use href="#i-bolt"/></svg>XM</b>Precio de bolsa y demanda real, por hora.</li>
+          <li><b><svg class="ic"><use href="#i-pin"/></svg>datos.gov.co</b>Costo unitario de CHEC, 2015 a septiembre de 2026.</li>
+          <li><b><svg class="ic"><use href="#i-db"/></svg>Python y SQLite</b>Extracción, limpieza y KPIs con actualizar_todo.py.</li>
+          <li><b><svg class="ic"><use href="#i-refresh"/></svg>Actualización diaria</b>GitHub Actions ejecuta el pipeline cada día y renueva esta página.</li>
+        </ol>
+        <p class="muted">Los datos reales de XM y CHEC se actualizan solos cada día. Las facturas de las tres sedes son simuladas y no cambian.</p>
+      </article>
+    </section>
+
+    <footer class="foot">
+      <p class="muted">Costo unitario de una sola empresa (CHEC, mercados CHEC y Pereira): es un caso piloto regional del mercado regulado. Son 9 meses comparables, poco para estadística.</p>
+      <p class="muted">EnerPyme Analytics · Proyecto final de Transmisión de datos · Autoras: Daniela García Valencia y Mariana Otalvaro Gutierrez.</p>
+    </footer>
+  </div>
+</div></div>
+
+<script>
+(function(){
+  var es=function(d){return new Intl.NumberFormat('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d})};
+  var N0=es(0),N1=es(1),N2=es(2);
+  var P=['#F5B83D','#5AA9F0','#3CCFBE','#A89BFF'];
+  var rows=function(id){var g=dash.data(id);return g.status==='ok'?g.data:null};
+  var num=function(v){return Number(v)};
+
+  /* navegación */
+  document.querySelectorAll('#ep [data-go]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var t=document.getElementById(b.dataset.go);
+      if(t){t.scrollIntoView({behavior:'smooth',block:'start'});dash.setLink(b.dataset.go)}
+    });
+  });
+
+  /* cálculos */
+  dash.calc('resumen',{
+    inputs:['mercado'],title:'Resumen del mercado',
+    description:'Alza del costo unitario entre el primer y el último mes del año.',
+    fn:function(mercado){
+      var c=mercado.map(function(r){return Number(r.cu_chec)});
+      return [{alza_cu:c[c.length-1]-c[0]}];
+    }
+  });
+  dash.calc('empresa_mes',{
+    inputs:['sedes'],title:'Consumo mensual de la empresa',
+    description:'Suma del consumo de las tres sedes por mes y su variación frente al mes anterior.',
+    fn:function(sedes){
+      var m={};
+      sedes.forEach(function(r){
+        var o=m[r.mes]||(m[r.mes]={mes:r.mes,mes_nombre:r.mes_nombre,total_kwh:0});
+        o.total_kwh+=Number(r.consumo_kwh);
+      });
+      var out=Object.keys(m).sort().map(function(k){return m[k]});
+      out.forEach(function(o,i){o.var_pct=i?(o.total_kwh-out[i-1].total_kwh)/out[i-1].total_kwh*100:''});
+      return out;
+    }
+  });
+  dash.calc('empresa_pico',{
+    inputs:['empresa_mes'],title:'Mes de mayor consumo',
+    description:'El mes con más kWh entre las tres sedes y su variación frente al mes anterior.',
+    fn:function(empresa_mes){
+      var b=empresa_mes[0];
+      empresa_mes.forEach(function(o){if(o.total_kwh>b.total_kwh)b=o});
+      return [{mes_nombre:b.mes_nombre,total_kwh:b.total_kwh,var_pct:b.var_pct}];
+    }
+  });
+  dash.calc('sedes_resumen',{
+    inputs:['sedes'],title:'Resumen por sede',
+    description:'Consumo total y promedio, mes pico y mayor salto mensual de cada sede, de la que más consume a la que menos.',
+    fn:function(sedes){
+      var g={};
+      sedes.forEach(function(r){(g[r.sede]=g[r.sede]||[]).push(r)});
+      var out=Object.keys(g).map(function(k){
+        var a=g[k].slice().sort(function(x,y){return x.mes<y.mes?-1:1});
+        var c=a.map(function(r){return Number(r.consumo_kwh)});
+        var tot=c.reduce(function(s,v){return s+v},0),pi=0,bi=1,bp=0,i;
+        for(i=0;i<c.length;i++){if(c[i]>c[pi])pi=i}
+        for(i=1;i<c.length;i++){var p=(c[i]-c[i-1])/c[i-1]*100;if(Math.abs(p)>Math.abs(bp)){bp=p;bi=i}}
+        return {sede:k,total_kwh:tot,promedio_kwh:tot/c.length,pico_mes:a[pi].mes_nombre,salto_mes:a[bi].mes_nombre,salto_pct:bp};
+      });
+      out.sort(function(x,y){return y.total_kwh-x.total_kwh});
+      return out;
+    }
+  });
+
+  /* cifras sueltas */
+  dash.draw('num',function(el){
+    var d=el.dataset,r=rows(d.source);
+    if(!r){el.textContent='—';return}
+    var row=d.row!==undefined?r[Number(d.row)]:r[0];
+    if(d.where){
+      var cond=d.where.split('&').map(function(p){var k=p.split('=');return [decodeURIComponent(k[0]),decodeURIComponent(k.slice(1).join('='))]});
+      row=r.find(function(x){return cond.every(function(c){return String(x[c[0]])===c[1]})});
+    }
+    if(!row||row[d.field]===undefined||row[d.field]===null||row[d.field]===''){el.textContent='—';return}
+    var raw=row[d.field],v=num(raw),t;
+    if(d.fmt==='txt')t=String(raw);
+    else if(d.fmt==='pct')t=(v>0?'+':v<0?'−':'')+N1.format(Math.abs(v))+' %';
+    else if(d.fmt==='mm')t=(v>0?'+':v<0?'−':'')+N2.format(Math.abs(v)/1e6)+' M';
+    else t=(d.fmt==='n0'?N0:d.fmt==='n2'?N2:N1).format(v);
+    el.textContent=t;
+  });
+
+  /* fechas */
+  dash.draw('fecha',function(el){
+    var r=rows('estado');
+    if(!r||!r[0]||!r[0][el.dataset.field]){el.textContent='—';return}
+    var s=String(r[0][el.dataset.field]),t;
+    if(s.length===10)t=new Date(s+'T00:00:00Z').toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+    else t=new Date(s+'-01T00:00:00Z').toLocaleDateString('es-CO',{month:'long',year:'numeric',timeZone:'UTC'});
+    el.textContent=(el.dataset.pre||'')+t;
+  });
+
+  function ready(el,ids){
+    var st=ids.map(function(i){return dash.data(i).status});
+    el.replaceChildren();
+    var ok=st.every(function(s){return s==='ok'});
+    el.classList.toggle('dash-skeleton',!ok&&st.indexOf('loading')>=0);
+    return ok;
+  }
+  function svgIn(el,H){
+    var W=Math.max(el.clientWidth||320,260);
+    var s=d3.select(el).append('svg').attr('width','100%').attr('viewBox','0 0 '+W+' '+H).attr('role','img');
+    return {s:s,W:W,H:H};
+  }
+  function tip(el){
+    var t=d3.select(el).append('div').attr('class','tip').style('display','none');
+    return {
+      show:function(ev,html){
+        var b=el.getBoundingClientRect();
+        t.html('').style('display','block');
+        html.forEach(function(h){var dv=t.append('div');if(h.c)dv.append('i').attr('class','sw').style('background',h.c);dv.append('span').text(h.t)});
+        var w=t.node().offsetWidth,x=ev.clientX-b.left+12;
+        if(x+w>b.width)x=ev.clientX-b.left-w-12;
+        t.style('left',Math.max(0,x)+'px').style('top',Math.max(0,ev.clientY-b.top-40)+'px');
+      },
+      hide:function(){t.style('display','none')}
+    };
+  }
+  var GRID='#26395A',AXIS='#4A6288';
+  function grid(s,l,r,y,vals){vals.forEach(function(v){
+    s.append('line').attr('x1',l).attr('x2',r).attr('y1',y(v)).attr('y2',y(v)).attr('stroke',v===0?AXIS:GRID);
+    s.append('text').attr('x',l-8).attr('y',y(v)+4).attr('text-anchor','end').text(N0.format(v));
+  })}
+
+  /* Q1 bolsa vs CU */
+  dash.draw('c-mercado',function(el){
+    if(!ready(el,['mercado']))return;
+    var r=rows('mercado'),H=280,g=svgIn(el,H),W=g.W,l=46,rr=74,t=14,b=26,s=g.s;
+    var x=d3.scalePoint(r.map(function(d){return d.mes_nombre}),[l,W-rr]),y=d3.scaleLinear([0,1000],[H-b,t]);
+    grid(s,l,W-rr,y,[0,250,500,750,1000]);
+    var stp=x.step()<30?2:1;
+    r.forEach(function(d,i){if(i%stp===0)s.append('text').attr('x',x(d.mes_nombre)).attr('y',H-8).attr('text-anchor','middle').text(d.mes_nombre)});
+    [['precio_bolsa','Bolsa',0],['cu_chec','CU',1]].forEach(function(se){
+      var ln=d3.line().x(function(d){return x(d.mes_nombre)}).y(function(d){return y(num(d[se[0]]))});
+      s.append('path').datum(r).attr('d',ln).attr('fill','none').attr('stroke',P[se[2]]).attr('stroke-width',2.5).attr('stroke-linecap','round').attr('stroke-linejoin','round');
+      var last=r[r.length-1];
+      s.append('circle').attr('cx',x(last.mes_nombre)).attr('cy',y(num(last[se[0]]))).attr('r',4.5).attr('fill',P[se[2]]);
+      s.append('text').attr('class','lb').attr('x',x(last.mes_nombre)+10).attr('y',y(num(last[se[0]]))+4).text(se[1]+' '+N0.format(num(last[se[0]])));
+    });
+    var rule=s.append('line').attr('y1',t).attr('y2',H-b).attr('stroke','#6C84A8').style('display','none');
+    var tp=tip(el);
+    s.append('rect').attr('x',l).attr('y',t).attr('width',W-rr-l+8).attr('height',H-t-b).attr('fill','transparent')
+      .on('pointermove',function(ev){
+        var px=ev.clientX-el.getBoundingClientRect().left,best=0,bd=1e9;
+        r.forEach(function(d,i){var dd=Math.abs(x(d.mes_nombre)-px);if(dd<bd){bd=dd;best=i}});
+        var d=r[best];rule.style('display',null).attr('x1',x(d.mes_nombre)).attr('x2',x(d.mes_nombre));
+        tp.show(ev,[{t:d.mes_nombre+' 2026'},{c:P[0],t:'Bolsa: '+N1.format(num(d.precio_bolsa))},{c:P[1],t:'Costo unitario: '+N1.format(num(d.cu_chec))}]);
+      }).on('pointerleave',function(){rule.style('display','none');tp.hide()});
+  });
+
+  /* Q2 demanda */
+  dash.draw('c-dem',function(el){
+    if(!ready(el,['mercado']))return;
+    var r=rows('mercado'),H=250,g=svgIn(el,H),W=g.W,l=44,rr=6,t=14,b=26,s=g.s;
+    var x=d3.scaleBand(r.map(function(d){return d.mes_nombre}),[l,W-rr]).padding(0.25),y=d3.scaleLinear([0,8000],[H-b,t]);
+    grid(s,l,W-rr,y,[0,2000,4000,6000,8000]);
+    var tp=tip(el),stp=x.step()<28?2:1;
+    r.forEach(function(d,i){
+      var v=num(d.demanda_gwh),bw=Math.min(x.bandwidth(),32),bx=x(d.mes_nombre)+(x.bandwidth()-bw)/2;
+      s.append('rect').attr('x',bx).attr('y',y(v)).attr('width',bw).attr('height',y(0)-y(v)).attr('rx',3).attr('fill',P[2])
+        .on('pointermove',function(ev){tp.show(ev,[{t:d.mes_nombre+' 2026'},{t:N0.format(v)+' GWh'}])}).on('pointerleave',tp.hide);
+      if(i%stp===0)s.append('text').attr('x',x(d.mes_nombre)+x.bandwidth()/2).attr('y',H-8).attr('text-anchor','middle').text(d.mes_nombre);
+    });
+  });
+
+  /* Q3 consumo de la empresa por mes */
+  dash.draw('c-empresa',function(el){
+    if(!ready(el,['empresa_mes']))return;
+    var r=rows('empresa_mes'),H=250,g=svgIn(el,H),W=g.W,l=44,rr=6,t=14,b=26,s=g.s;
+    var max=d3.max(r,function(d){return d.total_kwh});
+    var x=d3.scaleBand(r.map(function(d){return d.mes_nombre}),[l,W-rr]).padding(0.25),y=d3.scaleLinear([0,100000],[H-b,t]);
+    [0,25000,50000,75000,100000].forEach(function(v){
+      s.append('line').attr('x1',l).attr('x2',W-rr).attr('y1',y(v)).attr('y2',y(v)).attr('stroke',v===0?AXIS:GRID);
+      s.append('text').attr('x',l-8).attr('y',y(v)+4).attr('text-anchor','end').text(N0.format(v/1000));
+    });
+    var tp=tip(el),stp=x.step()<28?2:1;
+    r.forEach(function(d,i){
+      var v=d.total_kwh,bw=Math.min(x.bandwidth(),32),bx=x(d.mes_nombre)+(x.bandwidth()-bw)/2,pk=v===max;
+      s.append('rect').attr('x',bx).attr('y',y(v)).attr('width',bw).attr('height',y(0)-y(v)).attr('rx',3).attr('fill',pk?P[0]:P[1])
+        .on('pointermove',function(ev){tp.show(ev,[{t:d.mes_nombre+' 2026'},{t:N0.format(v)+' kWh'}].concat(d.var_pct===''?[]:[{t:(d.var_pct>0?'+':'−')+N1.format(Math.abs(d.var_pct))+' % vs mes anterior'}]))}).on('pointerleave',tp.hide);
+      if(i%stp===0)s.append('text').attr('x',x(d.mes_nombre)+x.bandwidth()/2).attr('y',H-8).attr('text-anchor','middle').text(d.mes_nombre);
+    });
+  });
+
+  /* Q4 efecto consumo vs precio */
+  dash.draw('c-efecto',function(el){
+    if(!ready(el,['efecto']))return;
+    var r=rows('efecto').map(function(d){return {n:d.sede,c:num(d.efecto_consumo)/1e6,p:num(d.efecto_precio)/1e6,tot:num(d.cambio_factura)/1e6}});
+    var H=220,g=svgIn(el,H),W=g.W,l=Math.min(146,W*0.34),rr=84,t=8,b=26,s=g.s;
+    var lo=Math.min(0,d3.min(r,function(d){return Math.min(d.c,0)+Math.min(d.p,0)}))-0.1,hi=d3.max(r,function(d){return Math.max(d.c,0)+Math.max(d.p,0)})*1.05;
+    var x=d3.scaleLinear([lo,hi],[l,W-rr]),band=(H-t-b)/r.length;
+    d3.ticks(0,Math.floor(hi),4).forEach(function(v){
+      s.append('line').attr('x1',x(v)).attr('x2',x(v)).attr('y1',t).attr('y2',H-b).attr('stroke',v===0?AXIS:GRID);
+      s.append('text').attr('x',x(v)).attr('y',H-8).attr('text-anchor','middle').text(N0.format(v)+' M');
+    });
+    var tp=tip(el);
+    r.forEach(function(d,i){
+      var y0=t+i*band+band*0.2,h=band*0.6,pos=0,neg=0;
+      s.append('text').attr('class','lb').attr('x',l-8).attr('y',y0+h/2+4).attr('text-anchor','end').text(W<420?d.n.split(' ')[0]:d.n);
+      [[d.c,3,'Efecto consumo'],[d.p,0,'Efecto precio']].forEach(function(sg){
+        var v=sg[0],a,e;
+        if(v>=0){a=pos;pos+=v;e=pos}else{a=neg;neg+=v;e=neg}
+        s.append('rect').attr('x',Math.min(x(a),x(e))).attr('y',y0).attr('width',Math.max(Math.abs(x(e)-x(a)),1.5)).attr('height',h).attr('rx',2).attr('fill',P[sg[1]])
+          .on('pointermove',function(ev){tp.show(ev,[{t:d.n},{c:P[sg[1]],t:sg[2]+': '+(v>=0?'+':'−')+N2.format(Math.abs(v))+' M'}])}).on('pointerleave',tp.hide);
+      });
+      s.append('text').attr('class','lb').attr('x',x(pos)+8).attr('y',y0+h/2+4).text((d.tot>=0?'+':'−')+N2.format(Math.abs(d.tot))+' M');
+    });
+  });
+
+  /* Q5 consumo por sede */
+  dash.draw('c-sedes',function(el){
+    if(!ready(el,['sedes']))return;
+    var all=rows('sedes'),g0=d3.group(all,function(d){return d.sede}),H=300,g=svgIn(el,H),W=g.W,l=50,rr=76,t=14,b=26,s=g.s;
+    var meses=Array.from(new Set(all.map(function(d){return d.mes_nombre})));
+    var x=d3.scalePoint(meses,[l,W-rr]),y=d3.scaleLinear([0,50000],[H-b,t]);
+    grid(s,l,W-rr,y,[0,10000,20000,30000,40000,50000]);
+    var stp=x.step()<30?2:1;
+    meses.forEach(function(m,i){if(i%stp===0)s.append('text').attr('x',x(m)).attr('y',H-8).attr('text-anchor','middle').text(m)});
+    var names=Array.from(g0.keys()).sort(function(a,b2){return num(g0.get(b2)[8].consumo_kwh)-num(g0.get(a)[8].consumo_kwh)});
+    var col=[P[0],P[1],P[3]];
+    names.forEach(function(nm,i){
+      var d=g0.get(nm),ln=d3.line().x(function(q){return x(q.mes_nombre)}).y(function(q){return y(num(q.consumo_kwh))});
+      s.append('path').datum(d).attr('d',ln).attr('fill','none').attr('stroke',col[i]).attr('stroke-width',2.5).attr('stroke-linecap','round').attr('stroke-linejoin','round');
+      var last=d[d.length-1];
+      s.append('circle').attr('cx',x(last.mes_nombre)).attr('cy',y(num(last.consumo_kwh))).attr('r',4.5).attr('fill',col[i]);
+      s.append('text').attr('class','lb').attr('x',x(last.mes_nombre)+10).attr('y',y(num(last.consumo_kwh))+4).text(nm.split(' ')[0]);
+    });
+    var rule=s.append('line').attr('y1',t).attr('y2',H-b).attr('stroke','#6C84A8').style('display','none');
+    var tp=tip(el);
+    s.append('rect').attr('x',l).attr('y',t).attr('width',W-rr-l+8).attr('height',H-t-b).attr('fill','transparent')
+      .on('pointermove',function(ev){
+        var px=ev.clientX-el.getBoundingClientRect().left,best=meses[0],bd=1e9;
+        meses.forEach(function(m){var dd=Math.abs(x(m)-px);if(dd<bd){bd=dd;best=m}});
+        rule.style('display',null).attr('x1',x(best)).attr('x2',x(best));
+        var items=[{t:best+' 2026'}];
+        names.forEach(function(nm,i){var q=g0.get(nm).find(function(z){return z.mes_nombre===best});items.push({c:col[i],t:nm+': '+N0.format(num(q.consumo_kwh))+' kWh'})});
+        tp.show(ev,items);
+      }).on('pointerleave',function(){rule.style('display','none');tp.hide()});
+  });
+
+  /* tabla de sedes */
+  dash.draw('t-sedes',function(tb){
+    tb.replaceChildren();
+    var r=rows('sedes_resumen');
+    if(!r)return;
+    r.forEach(function(d){
+      var tr=document.createElement('tr');
+      [d.sede,N0.format(d.total_kwh),N0.format(d.promedio_kwh),d.pico_mes,d.salto_mes,(d.salto_pct>0?'+':'−')+N1.format(Math.abs(d.salto_pct))+' %'].forEach(function(c){
+        var td=document.createElement('td');td.textContent=c;tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  });
+})();
+</script>
+
+<script>
+fetch('data/datos.json?v='+Date.now()).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
+ .then(function(j){window.__setData(j);window.__runDash();})
+ .catch(function(e){var b=document.getElementById('ep');if(b){var p=document.createElement('p');p.style.cssText='color:#FF8A75;padding:1rem 1.25rem;margin:0';p.textContent='No se pudieron cargar los datos. Recarga la página en unos minutos.';b.prepend(p)}console.error(e)});
+</script>
+</div></body></html>
